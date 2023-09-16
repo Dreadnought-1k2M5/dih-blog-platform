@@ -15,11 +15,23 @@ use App\Http\Controllers\AuthController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('view-blogs');
 });
 
+Route::view('login', 'auth/login')->name('login');
+Route::view('view', 'view-blogs');
 
 Route::controller(AuthController::class)->group(function(){
     Route::get('/register','view');
     Route::post('/register', 'store')->name("register");
+
+    Route::post('/login', 'authenticate');
+    Route::post('/logout', 'destroy');
+
 });
+
+
+Route::get('/profile/{username}', function($username){
+    return view('profile', ['username' => $username]);
+})->middleware('auth');
+
