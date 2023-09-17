@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+/* 
+use Illuminate\Auth\Events\Registered; */
+
 
 class AuthController extends Controller
 {
@@ -20,7 +23,7 @@ class AuthController extends Controller
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
  
-            return redirect()->intended('profile/'.$username);
+            return redirect()->intended('profile/'.$username)->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');;
         }
         return back()->withErrors(['invalid' => 'Invalid credentials! Please try again.']);
     }
@@ -49,20 +52,23 @@ class AuthController extends Controller
             'bio' => $request->bio,
         ]);
 
+   
+
         if(Auth::attempt(['username' => $username, 'password' => $password])){
+            $user = Auth::user();
             $request->session()->regenerate();
-            return redirect()->intended('profile/'.$username);
+            return redirect()->intended('verification.notice');
         }
         
 
     }
     public function destroy(Request $request){
-        Auth::logout();
- 
+        auth()->logout();
+
         $request->session()->invalidate();
      
         $request->session()->regenerateToken();
-        return redirect()->intended('/');
+        return redirect()->route('login');
     }
     public function view(){
         return view('auth/register');
