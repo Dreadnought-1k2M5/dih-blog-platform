@@ -23,13 +23,17 @@ Route::get('/', function () {
 
 /* user registration and authentication */
 Route::controller(AuthController::class)->group(function(){
-    Route::get('/register','view');
-    Route::post('/register', 'store')->name("register");
+    //Routes that ensure user is not logged in when registering or logging in.
+    Route::middleware(['guest', 'prevent-back-history'])->group(function(){
+        Route::get('/register','view');
+        Route::post('/register', 'store')->name("register");
+        Route::post('/login', 'authenticate');
 
-    Route::post('/login', 'authenticate');
-    Route::post('/logout', 'destroy');
+    });
 
-})->middleware('prevent-back-history');
+    Route::post('/logout', 'destroy')->middleware('auth');
+
+});
 
 /* Email verification routes */
 Route::view('/email/verify', 'verify-email')->middleware('auth')->name('verification.notice');
